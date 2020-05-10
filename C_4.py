@@ -4,7 +4,6 @@ import sys
 
 ROW=6
 COLUMN=6
-##BLUE=(0,0,255)
 
 def create_board(row,column):
     board=np.zeros((row,column))
@@ -30,44 +29,92 @@ def print_board(board):
 def is_winning_move(board,row,column,piece):
     same=0
     temp=column
+
     while (True):
-         if temp<COLUMN and board[row][temp]==piece:
+       if temp<COLUMN and board[row][temp]==piece:
             same=same+1
             temp=temp+1
             if same==4:
                 return True
-         else:
+       else:
            break
-
-    temp = column - 1
-    while (True):                                              #Horizontal checking
-         if temp>=0 and board[row][temp]==piece:
+                                             #Horizontal checking
+    temp=column-1
+    while (True):
+        if temp>=0 and board[row][temp]==piece:
             same=same+1
             temp=temp-1
             if same==4:
                 return True
-         else:
-             break
+        else:
+            break
 
-    temp=row+1
-    while (True):
-         if temp<ROW and board[temp][column]==piece:
-             same=same+1
-             temp=temp+1
-             if same==4:
-                 return True                         #Vertical checking
-         else:
-             break
 
-    temp=row-1
+    same=0
+    temp=row
+    while(True):
+        if temp>=0 and board[temp][column]==piece:
+            same=same+1                              #vertical checking
+            temp=temp-1
+            if same==4:
+                return True
+        else:
+            break
+
+    temp1=row
+    temp2=column
+    same=0
+
+    while(True):
+        if temp1<ROW and temp2<COLUMN and board[temp1][temp2]==piece:
+            same=same+1
+            temp1=temp1+1
+            temp2=temp2+1
+            if same==4:
+                return True
+        else:
+            break
+                                                 #diagonal checking
+    temp1=row-1
+    temp2=column-1
+
     while (True):
-         if temp>=0 and board[temp][column]==piece:
-             same=same+1
-             temp=temp-1
-             if same ==4:
-                 return True
-         else:
-             break
+        if temp1>=0 and temp2>=0 and board[temp1][temp2]==piece:
+            same=same+1
+            temp1=temp1-1
+            temp2=temp2-1
+            if same==4:
+                return True
+        else:
+            break
+
+
+    same=0
+    temp1=row
+    temp2=column
+
+    while (True):
+        if temp1>=0 and temp2<COLUMN and board[temp1][temp2]==piece:
+            same=same+1
+            temp1=temp1-1
+            temp2=temp2+1
+            if same==4:
+                return True
+        else:
+            break
+                                         #diagonal checking
+    temp1=row+1
+    temp2=column-1
+
+    while(True):
+        if temp1<ROW and temp2>=0 and board[temp1][temp2]==piece:
+            same=same+1
+            temp1=temp1+1
+            temp2=temp2-1
+            if same==4:
+                return True
+        else:
+            break
 
     return False
 
@@ -77,20 +124,9 @@ print(board)
 game_over=False
 turn = 0
 
-##pygame.init()
-SQUARESIZE=100
-##width=int(COLUMN*SQUARESIZE)
-##height=int(ROW*SQUARESIZE)
-
-##size=(width,height)
-##screen=pygame.display.set_mode(size)
-
 while not game_over:
-##  for event in pygame.event.get():
-##      if event.type==pygame.QUIT:
-##          sys.exit()
 
-  #player 1 turn
+    #player 1 turn
     if turn==0:
         while(True):
           col=int(input("Player 1 enter valid column number (0-5):"))
@@ -100,7 +136,7 @@ while not game_over:
 
         drop_piece(board,row,col,1)
         if is_winning_move(board,row,col,1):
-            print("Player 1 has win the game")
+            print("Player 1 has won the game")
             game_over=True
 
     #player 2 turn
@@ -112,8 +148,8 @@ while not game_over:
                 break
 
         drop_piece(board, row, col, 2)
-        if is_winning_move(board,row,col,1):
-            print("Player 1 has win the game")
+        if is_winning_move(board,row,col,2):
+            print("Player 2 has won the game")
             game_over=True
 
     print_board(board)
