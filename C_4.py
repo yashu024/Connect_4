@@ -1,9 +1,14 @@
 import numpy as np
 import pygame
 import sys
+import math
 
 ROW=6
 COLUMN=6
+BLUE=(0,0,200)
+BLACK=(0,0,0)
+RED=(255,0,0)
+YELLOW=(255,255,0)
 
 def create_board(row,column):
     board=np.zeros((row,column))
@@ -118,40 +123,94 @@ def is_winning_move(board,row,column,piece):
 
     return False
 
+def draw_board(board):
+    for c in range(COLUMN):
+        for r in range(ROW):
+            pygame.draw.rect(screen,BLUE,(c*SQUARESIZE,r*SQUARESIZE+SQUARESIZE,SQUARESIZE,SQUARESIZE))
+            pygame.draw.circle(screen,BLACK,(int(c*SQUARESIZE+SQUARESIZE/2),int(r*SQUARESIZE+SQUARESIZE+SQUARESIZE/2)),RADIUS)
+
+    for c in range(COLUMN):
+        for r in range(ROW):
+            if board[r][c]==1:
+                pygame.draw.circle(screen, RED, (int(c * SQUARESIZE + SQUARESIZE / 2), height-int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+            elif board[r][c]==2:
+                pygame.draw.circle(screen, YELLOW, (int(c * SQUARESIZE + SQUARESIZE / 2), height-int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+    pygame.display.update()
+
 board=create_board(ROW,COLUMN)
 print(board)
 
 game_over=False
 turn = 0
 
+pygame.init()
+
+SQUARESIZE=100
+
+width=COLUMN*100
+height=(ROW+1)*100
+
+size=(width,height)
+RADIUS=int(SQUARESIZE/2-5)
+
+screen=pygame.display.set_mode(size)
+draw_board(board)
+pygame.display.update()
+
+myfont=pygame.font.SysFont("monospace",75)
+
+
 while not game_over:
 
-    #player 1 turn
-    if turn==0:
-        while(True):
-          col=int(input("Player 1 enter valid column number (0-5):"))
-          if is_valid_column(col):
-            row=find_row(board,col)
-            break
+    for event in pygame.event.get():
+        if event.type==pygame.QUIT:
+            sys.exit()
 
-        drop_piece(board,row,col,1)
-        if is_winning_move(board,row,col,1):
-            print("Player 1 has won the game")
-            game_over=True
+        if event.type==pygame.MOUSEMOTION:
+            pygame.draw.rect(screen,BLACK,(0,0,width,SQUARESIZE))
+            posx=event.pos[0]
+            if turn==0:
+                pygame.draw.circle(screen,RED,(posx,int(SQUARESIZE/2)),RADIUS)
+            else:
+                pygame.draw.circle(screen, YELLOW, (posx, int(SQUARESIZE / 2)), RADIUS)
+            pygame.display.update()
 
-    #player 2 turn
-    if turn==1:
-        while (True):
-            col = int(input("Player 2 enter valid column number (0-5):"))
-            if is_valid_column(col):
-                row = find_row(board, col)
-                break
+        if event.type==pygame.MOUSEBUTTONDOWN:
+                #player 1 turn
+                if turn==0:
+                    while(True):
+                        posx=event.pos[0]
+                        col=int(math.floor(posx/100))
+                        if is_valid_column(col):
+                            row=find_row(board,col)
+                            break
+        
+                    drop_piece(board,row,col,1)
+                    if is_winning_move(board,row,col,1):
+                        print("Player 1 has won the game")
+                        label = myfont.render("Player 1 wins !!", 1, RED)
+                        screen.blit(label, (40, 10))
+                        game_over=True
+        
+                #player 2 turn
+                if turn==1:
+                    while (True):
+                        posx = event.pos[0]
+                        col = int(math.floor(posx / 100))
+                        if is_valid_column(col):
+                            row = find_row(board, col)
+                            break
+        
+                    drop_piece(board, row, col, 2)
+                    if is_winning_move(board,row,col,2):
+                        label=myfont.render("Player 2 wins !!",1,RED)
+                        screen.blit(label,(40,10))
+                        game_over=True
+        
+                print_board(board)
+                draw_board(board)
+                turn=turn+1
+                turn=turn%2
 
-        drop_piece(board, row, col, 2)
-        if is_winning_move(board,row,col,2):
-            print("Player 2 has won the game")
-            game_over=True
-
-    print_board(board)
-    turn=turn+1
-    turn=turn%2
+                if game_over:
+                    pygame.time.wait(3000)
