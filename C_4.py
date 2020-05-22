@@ -223,7 +223,64 @@ def evaluate_window(window,piece):
     return score
 
 def is_terminal_node(board):
-    return
+    for r in range(ROW):
+        for c in range(COLUMN):
+            return is_winning_move(board,r,c,Player_piece)
+
+    for r in range(ROW):
+        for c in range(COLUMN):
+            return is_winning_move(board,r,c,AI_piece)
+
+    if len(get_valid_locations(board))==0:
+        return True
+
+def minmax(board,depth,maximizing_player):
+    valid_locations=get_valid_locations(board)
+    if depth==0 or is_terminal_node(board):
+        if is_terminal_node(board):
+            for r in range(ROW):
+                for c in range(COLUMN):
+                    if is_winning_move(board,r,c,AI_piece):
+                        return (None,1000000000)
+            for r in range(ROW):
+                for c in range(COLUMN):
+                    if is_winning_move(board,r,c,Player_piece):
+                        return (None,-1000000000)
+
+            return (None,0) # No valid moves left
+
+        else: #Depth is zero
+            return (None,score_position(board,AI_piece))
+
+    if maximizing_player:
+        value= -math.inf
+        column=random.choice(valid_locations)
+        for col in valid_locations:
+            row=find_row(board,col)
+            temp_board=board.copy()
+            drop_piece(temp_board,row,col,AI_piece)
+            new_score=minmax(temp_board,depth-1,False)[1]
+            if new_score>value:
+                value=new_score
+                column=col
+        return (column,value)
+
+
+    else:
+        value= math.inf
+        column=random.choice(valid_locations)
+        for col in valid_locations:
+            row=find_row(board,col)
+            temp_board=board.copy()
+            drop_piece(temp_board,row,col,Player_piece)
+            new_score=minmax(temp_board,depth-1,True)[1]
+            if new_score<value:
+                value=new_score
+                column=col
+        return (column,value)
+
+
+
 
 board = create_board(ROW, COLUMN)
 print(board)
@@ -294,9 +351,9 @@ while not game_over:
     # player 2 turn
     if turn == AI and game_over!=True:
         while (True):
-
-            col = pick_best_col(board,AI_piece)
-           # col = random.randint(0,COLUMN-1)
+            #col = random.randint(0,COLUMN-1)
+            #col = pick_best_col(board, AI_piece)
+            col,minmax_score=minmax(board,3,True)
             row = find_row(board, col)
             print("column",col)
             if row >= 0:
