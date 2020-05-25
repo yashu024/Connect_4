@@ -234,7 +234,7 @@ def is_terminal_node(board):
     if len(get_valid_locations(board))==0:
         return True
 
-def minmax(board,depth,maximizing_player):
+def minmax(board,depth,alpha,beta,maximizing_player):
     valid_locations=get_valid_locations(board)
     if depth==0 or is_terminal_node(board):
         if is_terminal_node(board):
@@ -259,10 +259,13 @@ def minmax(board,depth,maximizing_player):
             row=find_row(board,col)
             temp_board=board.copy()
             drop_piece(temp_board,row,col,AI_piece)
-            new_score=minmax(temp_board,depth-1,False)[1]
+            new_score=minmax(temp_board,depth-1,alpha,beta,False)[1]
             if new_score>value:
                 value=new_score
                 column=col
+            alpha = max(alpha,value)
+            if alpha>=beta:
+                break
         return (column,value)
 
 
@@ -273,10 +276,13 @@ def minmax(board,depth,maximizing_player):
             row=find_row(board,col)
             temp_board=board.copy()
             drop_piece(temp_board,row,col,Player_piece)
-            new_score=minmax(temp_board,depth-1,True)[1]
+            new_score=minmax(temp_board,depth-1,alpha,beta,True)[1]
             if new_score<value:
                 value=new_score
                 column=col
+            beta=min(beta,value)
+            if alpha>=beta:
+                break
         return (column,value)
 
 
@@ -353,7 +359,7 @@ while not game_over:
         while (True):
             #col = random.randint(0,COLUMN-1)
             #col = pick_best_col(board, AI_piece)
-            col,minmax_score=minmax(board,3,True)
+            col,minmax_score=minmax(board,3,-math.inf,math.inf,True)
             row = find_row(board, col)
             print("column",col)
             if row >= 0:
@@ -380,4 +386,4 @@ while not game_over:
 
 
     if game_over:
-        pygame.time.wait(1000)
+        pygame.time.wait(3000)
