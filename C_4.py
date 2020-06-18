@@ -161,10 +161,6 @@ def draw_board(board):
 
 def score_position(board, piece):
     score = 0
-    # Score Center_col
-    center_array = [int(i) for i in list(board[:, COLUMN//2])]
-    center_count = center_array.count(piece)
-    score += center_count*6
 
     # Score Horizontal
     for r in range(ROW):
